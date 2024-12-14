@@ -1,10 +1,10 @@
 import { useState } from "preact/hooks";
 import { generateId } from "../util";
-import { saveProject } from "../project";
+import { saveProject, useProjects } from "../project";
 import { useLocation } from "preact-iso";
 
 export function Home() {
-	const projects = JSON.parse(localStorage.getItem('projects') || '[]');
+	const projects = useProjects();
 	const {route} = useLocation();
 	
 	const newProject = async () => {

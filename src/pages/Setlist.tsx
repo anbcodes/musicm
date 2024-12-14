@@ -5,6 +5,7 @@ import * as pdfjs from "pdfjs-dist";
 import jsPDF from "jspdf";
 import { ChordChartRenderer } from "../components/ChordChartRenderer";
 import { renderOnto } from "@anbcodes/chordpdf/lib";
+import { RemoveConfirm } from "../components/RemoveConfirm";
 
 pdfjs.GlobalWorkerOptions.workerSrc =
   "/pdf.worker.min.mjs"
@@ -63,6 +64,11 @@ export function Setlist({pid, id}: {pid: string, id: string}) {
     saveSetlist();
 	}
 
+  const removeChordChart = (i: number) => {
+    setlist.chords.splice(i, 1)
+    saveSetlist();
+	}
+
   const download = () => {
     let pdf = new jsPDF({
       orientation: 'portrait',
@@ -77,6 +83,13 @@ export function Setlist({pid, id}: {pid: string, id: string}) {
     });
 
     pdf.save(`${setlist.title}.pdf`);    
+  }
+
+  const {route} = useLocation();
+  const remove = () => {
+    project.setlists = project.setlists.filter(v => v.id !== id);
+    setProject({...project});
+    route(`/p/${project.id}`);
   }
 
   return (
@@ -101,8 +114,12 @@ export function Setlist({pid, id}: {pid: string, id: string}) {
           <a href={`/p/${project.id}/c/${c.id}`}>
             <h2 class="text-blue-500 hover:underline">view</h2>
           </a>
+          <button onClick={() => removeChordChart(i)} class="text-red-600 hover:bg-red-100 px-2 py-1 rounded border-red-600 border">
+            Delete
+          </button>
 			</div>))}
 			<button onClick={addChordCart} class="p-2 px-10 mt-10 rounded shadow w-[300px] bg-blue-600 hover:bg-blue-700 text-white">Add Chord Chart</button>
+      <RemoveConfirm onClick={remove} className="p-2 px-10 mt-10 w-[300px]">Remove Setlist</RemoveConfirm>
 
     </div>
   </>

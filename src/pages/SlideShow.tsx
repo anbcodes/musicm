@@ -1,5 +1,7 @@
 import { useRef, useState } from "preact/hooks"
 import { useProject } from "../project";
+import { RemoveConfirm } from "../components/RemoveConfirm";
+import { useLocation } from "preact-iso";
 
 export function SlideShow({pid, id}: {pid: string, id: string}) {
   const [project, setProject] = useProject(pid);
@@ -18,6 +20,17 @@ export function SlideShow({pid, id}: {pid: string, id: string}) {
     });
     saveSlideShow();
 	}
+  const removeLyrics = (i: number) => {
+    slideShow.lyrics.splice(i, 1)
+    saveSlideShow();
+	}
+
+  const {route} = useLocation();
+  const remove = () => {
+    project.slideShows = project.slideShows.filter(v => v.id !== id);
+    setProject({...project});
+    route(`/p/${project.id}`);
+  }
 
   return (
     <>
@@ -38,9 +51,13 @@ export function SlideShow({pid, id}: {pid: string, id: string}) {
           <a href={`/p/${project.id}/l/${l.id}`}>
             <h2 class="text-blue-500 hover:underline">view</h2>
           </a>
+          <button onClick={() => removeLyrics(i)} class="text-red-600 hover:bg-red-100 px-2 py-1 rounded border-red-600 border">
+            Delete
+          </button>
 			</div>))}
 			<button onClick={addLyric} class="p-2 px-10 mt-10 rounded shadow w-[300px] bg-blue-600 hover:bg-blue-700 text-white">Add Lyrics</button>
-
+      <RemoveConfirm onClick={remove} className="p-2 px-10 mt-10 w-[300px]">Remove Slideshow</RemoveConfirm>
+      
     </div>
   </>
   )

@@ -1,8 +1,9 @@
 import { useEffect, useState } from "preact/hooks"
-import { saveProject, useProject } from "../project";
+import { removeProject, saveProject, useProject } from "../project";
 import { generateId } from "../util";
 import { useLocation } from "preact-iso";
 import { compressToEncodedURIComponent } from "lz-string";
+import { RemoveConfirm } from "../components/RemoveConfirm";
 
 const defaultChart = `
 Key: C
@@ -88,6 +89,11 @@ export function Project({id}: {id: string}) {
     setCopied(true);
   }
 
+  const remove = () => {
+    removeProject(project);
+    route('/');
+  }
+
   return project && (
     <div class="pt-[30px] flex flex-col max-w-[500px] m-auto text-black">
 			<input
@@ -130,6 +136,7 @@ export function Project({id}: {id: string}) {
 			</div>))}
 			<button onClick={addSlideShow} class="ml-5 p-2 px-10 mt-10 rounded shadow w-[300px] bg-blue-600 hover:bg-blue-700 text-white">Add Slide Show</button>
 
+      <RemoveConfirm onClick={remove} className="ml-5 p-2 px-10 mt-10 w-[300px]">Remove Project</RemoveConfirm>
     </div>
   )
   

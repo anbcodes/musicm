@@ -1,4 +1,4 @@
-import { useState } from "preact/hooks";
+import { useId, useState } from "preact/hooks";
 import { persistStorage, useAsyncEffect } from "./util";
 
 export interface ChordChart {
@@ -51,8 +51,20 @@ export const saveProject = async (p: Project) => {
   ps = ps.filter(v => v.id !== p.id);
   ps.push({id: p.id, title: p.title, version: p.version});
   localStorage.setItem('projects', JSON.stringify(ps));
+  Object.values(setProjectListeners).forEach((v) => v(ps));
 }
 
+export const removeProject = async (p: Project) => {
+  await persistStorage();
+  const dir = await navigator.storage.getDirectory();
+  console.log('file', `project-${p.id}.json`);
+  await dir.removeEntry(`project-${p.id}.json`, {recursive: true});
+  
+  let ps = JSON.parse(localStorage.getItem('projects') || '[]');
+  ps = ps.filter(v => v.id !== p.id);
+  localStorage.setItem('projects', JSON.stringify(ps));
+  Object.values(setProjectListeners).forEach((v) => v(ps));
+}
 
 export function useProject(id: string): [Project, (p: Project) => void] {
   const [project, setProject] = useState<Project | undefined>(undefined);
@@ -72,3 +84,13 @@ export function useProject(id: string): [Project, (p: Project) => void] {
     setProject(p);
   }]
 } 
+
+const setProjectListeners: {[id: string]: (p: Project[]) => void} = {};
+
+export function useProjects() {
+  const id = useId();
+  const [projects, setProjects] = useState(JSON.parse(localStorage.getItem('projects') || '[]'));
+  setProjectListeners[id] = setProjects;
+
+  return projects;
+}

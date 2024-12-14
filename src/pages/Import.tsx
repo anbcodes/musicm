@@ -1,5 +1,5 @@
 import { decompressFromEncodedURIComponent } from "lz-string"
-import { Project, saveProject } from "../project";
+import { Project, saveProject, useProjects } from "../project";
 import { useLocation } from "preact-iso";
 
 export function Import({enc}: {enc: string}) {
@@ -13,7 +13,7 @@ export function Import({enc}: {enc: string}) {
         </div>
   }
 
-  const projects = JSON.parse(localStorage.getItem('projects') || '[]');
+  const projects = useProjects();
 	const {route} = useLocation();
 
   const importProject = async () => {

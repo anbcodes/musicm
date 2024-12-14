@@ -4,6 +4,7 @@ import { useLocation } from "preact-iso";
 import * as pdfjs from "pdfjs-dist";
 import { ChordChartRenderer } from "../components/ChordChartRenderer";
 import { LyricRenderer, totalLength } from "../components/LyricRenderer";
+import { RemoveConfirm } from "../components/RemoveConfirm";
 
 pdfjs.GlobalWorkerOptions.workerSrc =
   "/pdf.worker.min.mjs"
@@ -60,6 +61,13 @@ export function Lyrics({pid, id}: {pid: string, id: string}) {
     setLyricLoc(lyricLoc - 1);
   }
 
+  const {route} = useLocation();
+  const remove = () => {
+    project.lyrics = project.lyrics.filter(v => v.id !== id);
+    setProject({...project});
+    route(`/p/${project.id}`);
+  }
+
   return (
     <>
     <div class="pt-[30px] flex flex-col items-center max-w-[500px] m-auto text-black">
@@ -89,6 +97,9 @@ export function Lyrics({pid, id}: {pid: string, id: string}) {
         </div>
       </div>
     </div>
+  </div>
+  <div class="pt-[30px] flex flex-col items-center max-w-[500px] m-auto text-black">
+    <RemoveConfirm onClick={remove} className="p-2 px-10 mt-10 w-[300px]">Remove Lyrics</RemoveConfirm>
   </div>
   </>
   )

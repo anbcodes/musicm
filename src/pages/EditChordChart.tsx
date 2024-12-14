@@ -1,8 +1,9 @@
 import { useRef, useState } from "preact/hooks"
-import { useProject } from "../project";
+import { saveProject, useProject } from "../project";
 import { useLocation } from "preact-iso";
 import * as pdfjs from "pdfjs-dist";
 import { ChordChartRenderer } from "../components/ChordChartRenderer";
+import { RemoveConfirm } from "../components/RemoveConfirm";
 
 pdfjs.GlobalWorkerOptions.workerSrc =
   "/pdf.worker.min.mjs"
@@ -57,6 +58,13 @@ export function EditChordChart({pid, id}: {pid: string, id: string}) {
 
   console.log("Rendered")
 
+  const {route} = useLocation();
+  const remove = () => {
+    project.chords = project.chords.filter(v => v.id !== id);
+    setProject({...project});
+    route(`/p/${project.id}`);
+  }
+
   return (
     <>
     <div class="pt-[30px] flex flex-col items-center max-w-[500px] m-auto text-black">
@@ -96,6 +104,10 @@ export function EditChordChart({pid, id}: {pid: string, id: string}) {
       </div>
     </div>
   </div>
+  <div class="pt-[30px] flex flex-col items-center max-w-[500px] m-auto text-black">
+    <RemoveConfirm onClick={remove} className="ml-5 p-2 px-10 mt-10 w-[300px]">Remove Chord Chart</RemoveConfirm>
+  </div>
+
   </>
   )
   
