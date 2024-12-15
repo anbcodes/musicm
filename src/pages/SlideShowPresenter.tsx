@@ -50,7 +50,7 @@ export function SlideShowPresenter({pid, id}: {pid: string, id: string}) {
 
 			<LyricRenderer project={project} lyric={lyric} location={loc}></LyricRenderer>
 
-      <button onClick={() => setLoc(-1)} class="fixed bottom-8 right-8 px-2 py-2 border shadow-sm rounded bg-white z-[5] hover:bg-gray-100 active:bg-gray-200">Blank</button>
+      <button onClick={() => goToSlide(lyric, -1)} class="fixed bottom-8 right-8 px-2 py-2 border shadow-sm rounded bg-white z-[5] hover:bg-gray-100 active:bg-gray-200">Blank</button>
 
       <a class="self-center text-blue-500 hover:underline" href={`../${slideShow.id}`}>Back</a>
 
