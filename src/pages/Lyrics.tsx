@@ -5,6 +5,8 @@ import * as pdfjs from "pdfjs-dist";
 import { ChordChartRenderer } from "../components/ChordChartRenderer";
 import { LyricRenderer, totalLength } from "../components/LyricRenderer";
 import { RemoveConfirm } from "../components/RemoveConfirm";
+import { Dialog } from "../components/Dialog";
+import { getMetadata } from "@anbcodes/chordpdf/lib";
 
 pdfjs.GlobalWorkerOptions.workerSrc =
   "/pdf.worker.min.mjs"
@@ -68,6 +70,32 @@ export function Lyrics({pid, id}: {pid: string, id: string}) {
     route(`/p/${project.id}`);
   }
 
+  const [importOpen, setImportOpen] = useState(false);
+  const [chordImport, setChordImport] = useState(project.chords[0].id);
+  const importFromChord = () => {
+    const { linesRaw, metadata } = getMetadata(project.chords.find(v => v.id === chordImport).chart);
+    const lines = ('#' + linesRaw.join('\n#')).split('\n').filter(v => v).map(v => ({
+      type: v.startsWith('#') ? 'title' : v.match(/^[ \t0-9msuadno/|()]+$/) ? 'chords' : 'lyrics' as 'title' | 'chords' | 'lyrics',
+      line: v,
+    }))
+
+    let str = '';
+
+    str += "# Title\n";
+    str += metadata.Title + '\n';
+    lines.forEach((line) => {
+      if (line.type === 'title') {
+        str += `\n${line.line}\n`
+      } else if (line.type === 'lyrics') {
+        str += `${line.line.replace(/[,.;?]/g, "").replace(/ +/, " ").replace(/ ?- ?/g, "").trim()}\n`;
+      }
+    });
+
+    lyrics.content = str;
+    saveLyrics();
+    setImportOpen(false);
+  }
+
   return (
     <>
     <div class="pt-[30px] flex flex-col items-center max-w-[500px] m-auto text-black">
@@ -84,6 +112,14 @@ export function Lyrics({pid, id}: {pid: string, id: string}) {
     <div class="w-full flex justify-center">
     <div class="flex flex-wrap max-w-[1400px]">
       <div class="min-w-0 sm:min-w-[440px] m-2 mr-5 flex-grow flex flex-col items-center">
+        <Dialog text="Import" open={importOpen} setOpen={setImportOpen} className="mb-2 px-6 hover:bg-gray-100">
+          <h1 class="text-xl">Import from Chord Chart</h1>
+          <select value={chordImport} onChange={(e) => setChordImport((e.target as HTMLSelectElement).value)} class="bg-white border rounded p-2 mt-5">
+            {project.chords.map(v => <option value={v.id}>{v.title}</option>)}
+          </select>
+          <button onClick={importFromChord} class="p-2 px-10 mt-10 rounded shadow w-[200px] bg-blue-600 hover:bg-blue-700 text-white">Import</button>
+
+        </Dialog>
         <textarea class="bg-white font-mono min-w-[440px] rounded border p-2" rows={40} onInput={(e) => (lyrics.content = (e.target as HTMLTextAreaElement).value,saveLyrics())}>
           {lyrics.content}
         </textarea>
