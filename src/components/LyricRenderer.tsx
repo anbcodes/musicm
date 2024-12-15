@@ -76,11 +76,17 @@ export function totalLength(lyrics: string) {
 }
 
 export function LyricRenderer({ project, lyric, location }: { project: Project, lyric: string, location: number }) {
-  const lyrics = project.lyrics.find(v => v.id === lyric);
-  const sections = parseLyrics(lyrics.content);
-  const lineIndex = sections.findIndex(v => v.start > location);
-  const section = sections.at(lineIndex === -1 ? -1 : lineIndex - 1);
-  const line = section.slides[location - section.start];
+  let line: string;
+  if (location === -1) {
+    line = '';
+  } else {
+    const lyrics = project.lyrics.find(v => v.id === lyric);
+    const sections = parseLyrics(lyrics.content);
+    const lineIndex = sections.findIndex(v => v.start > location);
+    const section = sections.at(lineIndex === -1 ? -1 : lineIndex - 1);
+    line = section.slides[location - section.start];
+  }
+  
   const canvas = useRef<HTMLCanvasElement>();
   const [fullscreen, setFullscreen] = useState(false);
 

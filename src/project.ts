@@ -1,5 +1,6 @@
 import { useId, useState } from "preact/hooks";
-import { persistStorage, useAsyncEffect } from "./util";
+import { generateId, persistStorage, useAsyncEffect } from "./util";
+import { log } from "./components/Log";
 
 export interface ChordChart {
   id: string,
@@ -39,14 +40,34 @@ export interface Project {
   slideShows: SlideShow[],
 }
 
+const fsWorker = new Worker("/filesystem.worker.js");
+
+const saveToFile = (p: Project) => new Promise<void>((resolve) => {
+  const id = generateId();
+  const onMessage = (e: MessageEvent<any>) => {
+    if (e.data.type === 'saveR' && e.data.id === id) {
+      fsWorker.removeEventListener('message', onMessage);
+      resolve();
+    }
+  }
+  fsWorker.addEventListener('message', onMessage);
+
+  fsWorker.postMessage({
+    type: 'save',
+    project: p,
+    id,
+  });
+})
+
 export const saveProject = async (p: Project) => {
   await persistStorage();
-  const dir = await navigator.storage.getDirectory();
-  console.log('file', `project-${p.id}.json`);
-  const file = await dir.getFileHandle(`project-${p.id}.json`, {create: true});
-  const writer = await file.createWritable();
-  await writer.write(JSON.stringify(p));
-  await writer.close();
+  // throw new Error(JSON.stringify(navigator.storage, null, 2));
+  await saveToFile(p);
+
+  // const dir = await navigator.storage.getDirectory();
+  // log(dir);
+  // console.log('file', `project-${p.id}.json`);
+  
   let ps = JSON.parse(localStorage.getItem('projects') || '[]');
   ps = ps.filter(v => v.id !== p.id);
   ps.push({id: p.id, title: p.title, version: p.version});
@@ -56,6 +77,7 @@ export const saveProject = async (p: Project) => {
 
 export const removeProject = async (p: Project) => {
   await persistStorage();
+
   const dir = await navigator.storage.getDirectory();
   console.log('file', `project-${p.id}.json`);
   await dir.removeEntry(`project-${p.id}.json`, {recursive: true});

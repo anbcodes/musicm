@@ -7,7 +7,7 @@ export function RemoveConfirm({onClick, className, children}: {onClick: () => vo
   <button onClick={() => setRemoveDialog(true)} class={`${className} rounded shadow w-[300px] bg-red-600 hover:bg-red-700 text-white`}>{children}</button>
   {removeDialog && (
     <div class="z-10 fixed left-0 top-0 w-screen h-screen flex justify-center" onClick={() => setRemoveDialog(false)}>
-      <div class="h-[200px] shadow bg-white p-5 mt-[300px] flex flex-col items-center" onClick={(e) => e.stopPropagation()}>
+      <div class="h-[200px] shadow bg-white p-5 sm:mt-[100px] md:mt-[300px] flex flex-col items-center" onClick={(e) => e.stopPropagation()}>
         <h1 class="text-2xl text-center">Are you sure?</h1>
         <div class="flex-grow"></div>
         <button onClick={() => onClick()} class="text-sm py-2 mt-5 rounded shadow w-[200px] bg-red-600 hover:bg-red-700 text-white">{children}</button>
