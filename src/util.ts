@@ -1,6 +1,9 @@
 import { EffectCallback, Inputs, useEffect } from "preact/hooks";
 
 export function generateId(len = 14) {
+  if (len < 0) throw new RangeError('Len cannot be negative');
+  if (len === 0) throw new RangeError('Len cannot be zero');
+
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   const randomValues = new Uint8Array(len);
   window.crypto.getRandomValues(randomValues);
